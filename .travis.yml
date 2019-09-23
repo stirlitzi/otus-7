@@ -1,0 +1,31 @@
+language: cpp
+compiler: gcc
+dist: trusty
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-8
+      - libgtest-dev
+      - cmake
+
+
+before_script:
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
+
+script:
+  - cmake .
+  - cmake --build .
+  - cmake --build . --target test
+  - cmake --build . --target package
+
+
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script:
+      - curl -T bulk-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -u stirlitzi:$BINTRAY_API_KEY "https://api.bintray.com/content/test195/test195/otus-7-master/$TRAVIS_BUILD_NUMBER/bulk-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+
+
